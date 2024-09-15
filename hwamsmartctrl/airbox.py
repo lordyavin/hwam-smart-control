@@ -13,7 +13,7 @@ class Airbox:
     ENDPOINT_START = "/start"
     ENDPOINT_SET_BURN_LEVEL = "/set_burn_level"
 
-    def __init__(self, host: str, session: aiohttp.ClientSession = None):
+    async def __init__(self, host: str, session: aiohttp.ClientSession = None):
         """
         Parameters
         ----------
@@ -24,11 +24,20 @@ class Airbox:
         """
         self.host = host
         if session is None:
-            self.session = aiohttp.ClientSession(base_url="http://"+self.host)
+            self.session = await aiohttp.ClientSession(base_url="http://"+self.host)
+            self.__closeSession = True
         else:
             self.session = session
+            self.__closeSession = False
 
-    async def determineHostname(self) -> str:
+    async def __enter__(self):
+        return self
+    
+    async def __exit__(self, exc_type, exc_value, exc_tb):
+        if self.__closeSession:
+            await self.session.close()
+
+    async def determine_hostname(self) -> str:
         """ Tries to determine the hostname of the stoves Airbox.
 
         This is not equal to the name set up in the iOS or Android app.
@@ -36,28 +45,25 @@ class Airbox:
         with socket.gethostbyaddr(self.host) as hostname:
             return hostname
 
-    async def getStoveData(self) -> StoveData:
-       """ Requests all vital stove data from the Airbox.
-        """
-        async with self.session.get(self.ENDPOINT_GET_STOVE_DATA) as response:
-            txt = await response.text()
+    async def get_stove_data(self) -> StoveData:
+        """ Requests all vital stove data from the Airbox.  """
+        async with self.session.get(self.ENDPOINT_GET_STOVE_DATA) as response, response.text() as txt:
             return stoveDataOf(json.loads(txt))
 
-    async def startCombustion(self) -> bool:
+    async def start_combustion(self) -> bool:
         """ Commands to start the combustion.
 
         Returns
         - - - - 
         Always True because the Airbox always response with a OK. 
         """
-        async with self.session.get(self.ENDPOINT_START) as response:
-            data = await response.json()
+        async with self.session.get(self.ENDPOINT_START) as response, response.json() as data:
             if data["response"] == "OK":
                 return True
             else:
                 return False
 
-    async def setBurnLevel(self, level: int) -> bool:
+    async def set_burn_level(self, level: int) -> bool:
         """
         Sets the burn level in the range 0-5.
 
@@ -92,7 +98,7 @@ class Airbox:
             else:
                 return False
 
-def connect(host: str) -> Airbox:
+async def connect(host: str) -> Airbox:
     """ Creates a new Airbox connection
 
     Parameters
@@ -100,4 +106,4 @@ def connect(host: str) -> Airbox:
     host : str
         The host IP or domain name
     """
-    return Airbox(str, aiohttp.ClientSession(base_url="http://"+host))
+    return await Airbox(str, aiohttp.ClientSession(base_url="http://"+host))
