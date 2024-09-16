@@ -1,3 +1,4 @@
+""" API client for IHS Airboxes """
 import aiohttp
 import json
 import socket
