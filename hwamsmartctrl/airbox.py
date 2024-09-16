@@ -29,15 +29,27 @@ class Airbox:
             self.session = session
 
     async def determineHostname(self) -> str:
+        """ Tries to determine the hostname of the stoves Airbox.
+
+        This is not equal to the name set up in the iOS or Android app.
+        """
         with socket.gethostbyaddr(self.host) as hostname:
             return hostname
 
     async def getStoveData(self) -> StoveData:
+       """ Requests all vital stove data from the Airbox.
+        """
         async with self.session.get(self.ENDPOINT_GET_STOVE_DATA) as response:
             txt = await response.text()
             return stoveDataOf(json.loads(txt))
 
     async def startCombustion(self) -> bool:
+        """ Commands to start the combustion.
+
+        Returns
+        - - - - 
+        Always True because the Airbox always response with a OK. 
+        """
         async with self.session.get(self.ENDPOINT_START) as response:
             data = await response.json()
             if data["response"] == "OK":
