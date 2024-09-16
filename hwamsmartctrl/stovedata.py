@@ -3,6 +3,8 @@ import datetime
 
 
 class StoveData:
+    """ Data provided by the /get_stove_data endpoint.
+    """
     def __init__(self):
         self.updating = None
         self.message_id = None
@@ -35,6 +37,7 @@ class StoveData:
 
 
 def stoveDataOf(json: dict) -> StoveData:
+    """ Factory method to create StoveData from JSON dictionary. """
     data = StoveData()
     data.updating = json["updating"] == 1
     data.message_id = json["message_id"]
