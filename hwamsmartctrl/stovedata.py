@@ -1,3 +1,4 @@
+""" Classes and definitions of stove data reported by the IHS Airbox. """
 import datetime
 
 
