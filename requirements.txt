@@ -2,3 +2,4 @@ aiohttp
 assertpy
 build
 twine
+pylint
