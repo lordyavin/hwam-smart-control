@@ -1,4 +1,5 @@
 aiohttp
+aiodns
 
 #build
 build
