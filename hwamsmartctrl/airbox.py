@@ -1,8 +1,8 @@
 """ API client for IHS Airboxes """
 import asyncio
 import sys
-import socket
 
+import aiodns
 import aiohttp
 
 from hwamsmartctrl.stovedata import StoveData, stove_data_of
@@ -27,30 +27,41 @@ class Airbox:
         ----------
         host
             The host IP address or domain name.
-        session
-            Optional pre-configured client session.
         """
         self._host = host
         self._session = None
-        self._session = aiohttp.ClientSession(base_url="http://" + self._host)
+        self._base_url = f"http://{host}"
 
-    def __enter__(self):
+    async def __aenter__(self):
+        return await self.connect()
+
+    async def __aexit__(self, exc_type, exc_value, exc_tb):
+        await self.close()
+
+    async def connect(self):
+        """ Connects to the airbox
+
+        To close the connection call :func:`self.close`
+        """
+        self._session = aiohttp.ClientSession()
         return self
 
-    def __exit__(self, exc_type, exc_value, exc_tb):
-        asyncio.create_task(self._session.close())
+    async def close(self):
+        """ Closes the connection """
+        await self._session.close()
+        self._session = None
 
     async def determine_hostname(self) -> str:
         """ Tries to determine the hostname of the stoves Airbox.
 
         This is not equal to the name set up in the iOS or Android app.
         """
-        with socket.gethostbyaddr(self._host) as hostname:
-            return hostname
+        resolver = aiodns.DNSResolver(loop=asyncio.get_event_loop())
+        return await resolver.gethostbyaddr(self._host)
 
     async def get_stove_data(self) -> StoveData:
         """ Requests all vital stove data from the Airbox.  """
-        async with self._session.get(self.ENDPOINT_GET_STOVE_DATA) as response:
+        async with self._session.get(self._base_url + self.ENDPOINT_GET_STOVE_DATA) as response:
             data = await response.json(content_type="text/json")
             return stove_data_of(data)
 
@@ -61,7 +72,7 @@ class Airbox:
         - - - -
         Always True because the Airbox always response with a OK.
         """
-        async with self._session.get(self.ENDPOINT_START) as response:
+        async with self._session.get(self._base_url + self.ENDPOINT_START) as response:
             data = await response.json(content_type="text/json")
             return data["response"] == "OK"
 
@@ -97,7 +108,7 @@ class Airbox:
 
 async def main(host: str):
     """ Example usage of Airbox class to read stove data """
-    with Airbox(host) as stove:
+    async with Airbox(host) as stove:
         stove_data = await stove.get_stove_data()
         for key, value in stove_data.__dict__.items():
             print(f"{key} = {value}")

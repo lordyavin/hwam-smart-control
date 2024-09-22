@@ -1,5 +1,13 @@
 aiohttp
-assertpy
+
+#build
 build
 twine
+
+# testing
+assertpy
+aioresponses
+
+# QA
 pylint
+coverage

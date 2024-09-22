@@ -1,12 +1,6 @@
 """ Classes and definitions of stove data reported by the IHS Airbox. """
 import dataclasses
 import datetime
-from enum import Enum
-
-
-class Phase(Enum):
-    """ The enumeration of burn phases """
-    GLOW: 4
 
 
 @dataclasses.dataclass
@@ -88,18 +82,15 @@ def stove_data_of(json: dict) -> StoveData:
         refill_alarm=json["refill_alarm"] == 1,
         remote_refill_alarm=json["remote_refill_alarm"] == 1,
         time_since_remote_msg=json["time_since_remote_msg"],
-        version="%i.%i.%i" % (
-            json["version_major"],
-            json["version_minor"],
-            json["version_build"]),
-        remote_version="%i.%i.%i" % (
-            json["remote_version_major"],
-            json["remote_version_minor"],
-            json["remote_version_build"]),
-        wifi_version="%i.%i.%i" % (
-            json["wifi_version_major"],
-            json["wifi_version_minor"],
-            json["wifi_version_build"]),
+        version=(f"{json['version_major']}."
+                 f"{json['version_minor']}."
+                 f"{json['version_build']}"),
+        remote_version=(f"{json['remote_version_major']}."
+                        f"{json['remote_version_minor']}."
+                        f"{json['remote_version_build']}"),
+        wifi_version=(f"{json['wifi_version_major']}."
+                      f"{json['wifi_version_minor']}."
+                      f"{json['wifi_version_build']}"),
         current_datetime=datetime.datetime(
             year=json["year"],
             month=json["month"],

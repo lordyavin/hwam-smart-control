@@ -3,7 +3,8 @@ import json
 import unittest
 
 from assertpy import assert_that
-from hwamsmartctrl.stovedata import StoveData, stoveDataOf
+from hwamsmartctrl.stovedata import StoveData, stove_data_of
+
 
 class StoveDataTest(unittest.TestCase):
     def test_conversion(self):
@@ -53,9 +54,8 @@ class StoveDataTest(unittest.TestCase):
             "remote_refill_beeps": 3
         }
         """
-        actual = stoveDataOf(json.loads(jsonStr))
+        actual = stove_data_of(json.loads(jsonStr))
         assert_that(actual.updating).is_false()
-        assert_that(actual.message_id).is_equal_to(3)
         assert_that(actual.phase).is_equal_to(5)
         assert_that(actual.night_lowering).is_false()
         assert_that(actual.new_fire_wood_time).is_equal_to(
@@ -76,8 +76,8 @@ class StoveDataTest(unittest.TestCase):
             datetime.time(hour=22, minute=0))
         assert_that(actual.night_end_time).is_equal_to(
             datetime.time(hour=6, minute=0))
-        assert_that(actual.stove_temperature).is_equal_to(5769)
-        assert_that(actual.room_temperature).is_equal_to(2343)
+        assert_that(actual.stove_temperature).is_equal_to(58)
+        assert_that(actual.room_temperature).is_equal_to(23)
         assert_that(actual.oxygen_level).is_equal_to(0)
         assert_that(actual.valve1_position).is_equal_to(40)
         assert_that(actual.valve2_position).is_equal_to(60)

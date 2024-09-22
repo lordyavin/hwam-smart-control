@@ -12,7 +12,7 @@ description = 'Python API to interface HWAM® SmartControl™'
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "aiohttp",    
+    "aiohttp", "aiodns"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
