@@ -1,5 +1,15 @@
 aiohttp
-assertpy
+aiodns
+
+#build
 build
 twine
+
+# testing
+assertpy
+aioresponses
+
+# QA
 pylint
+pytest
+coverage
