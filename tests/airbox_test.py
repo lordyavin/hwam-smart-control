@@ -12,13 +12,17 @@ from hwamsmartctrl.airbox import Airbox
 
 class AirboxTest(unittest.IsolatedAsyncioTestCase):
 
+    ip = "10.0.0.1"
+
     @classmethod
     def setUpClass(cls):
         cls.loop = asyncio.get_event_loop()
+        cls.uut = cls.loop.run_until_complete(Airbox(cls.ip).connect())
 
     @classmethod
     def tearDownClass(cls):
-        pass
+        cls.loop.run_until_complete(cls.uut.close())
+        cls.loop.close()
 
     @patch('aiodns.DNSResolver')
     def test_determine_hostname(self, dns_resolver_class):
@@ -29,18 +33,14 @@ class AirboxTest(unittest.IsolatedAsyncioTestCase):
         resolver_mock = dns_resolver_class.return_value
         resolver_mock.gethostbyaddr = gethostbyaddr_mock
 
-        ip = "10.0.0.1"
-        uut = self.loop.run_until_complete(Airbox(ip).connect())
-
         # WHEN
-        name = self.loop.run_until_complete(uut.determine_hostname())
+        name = self.loop.run_until_complete(self.uut.determine_hostname())
 
         # THEN
         assert_that(name).is_equal_to("thename")
 
     @aioresponses()
     def test_get_stove_data(self, mocked):
-        ip = "10.0.0.1"
         jsonFilePath = os.path.join(
             os.path.dirname(__file__),
             'get_stove_data.json')
@@ -48,12 +48,12 @@ class AirboxTest(unittest.IsolatedAsyncioTestCase):
             content = file.read()
 
             mocked.get(
-                f'http://{ip}/get_stove_data',
+                f'http://{self.ip}/get_stove_data',
                 status=200,
                 body=content,
                 headers={"Content-Type": "text/json"})
-            uut = self.loop.run_until_complete(Airbox(ip).connect())
-            data = self.loop.run_until_complete(uut.get_stove_data())
+
+            data = self.loop.run_until_complete(self.uut.get_stove_data())
             assert_that(data.updating).is_false()
             assert_that(data.phase).is_equal_to(5)
             assert_that(data.night_lowering).is_false()
@@ -108,20 +108,17 @@ class AirboxTest(unittest.IsolatedAsyncioTestCase):
 
     @aioresponses()
     def test_start_combustion(self, mocked):
-        ip = "10.0.0.1"
         mocked.get(
-            f'http://{ip}/start',
+            f'http://{self.ip}/start',
             status=200,
             body='{"response":"OK"}',
             headers={"Content-Type": "text/json"})
-        uut = self.loop.run_until_complete(Airbox(ip).connect())
-        succeeded = self.loop.run_until_complete(uut.start_combustion())
+        succeeded = self.loop.run_until_complete(self.uut.start_combustion())
         assert_that(succeeded).is_true()
 
     @aioresponses()
     def test_set_burn_level(self, mocked):
-        uut = self.loop.run_until_complete(Airbox("10.0.0.1").connect())
-        assert_that(uut.set_burn_level).raises(NotImplementedError)
+        assert_that(self.uut.set_burn_level).raises(NotImplementedError)
 
 
 if __name__ == "__main__":

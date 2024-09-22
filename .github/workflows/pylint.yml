@@ -1,9 +1,10 @@
-name: Pylint
+name: QA
 
-on: [push]
+on: [pull_request]
 
 jobs:
   build:
+    name: Lint and Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -21,3 +22,7 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint hwamsmartctrl
+    - name: Run tests with coverage
+      run: coverage run -m pytest
+    - name: Creat coverage report
+      run: coverage report --omit=tests/*
