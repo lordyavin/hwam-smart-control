@@ -111,7 +111,8 @@ class AirboxTest(unittest.IsolatedAsyncioTestCase):
         mocked.get(
             f'http://{self.ip}/start',
             status=200,
-            body='{"response":"OK"}'
+            body='{"response":"OK"}', 
+            headers=dict() 
             )
         succeeded = self.loop.run_until_complete(self.uut.start_combustion())
         assert_that(succeeded).is_true()

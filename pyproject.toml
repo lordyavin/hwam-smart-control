@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hwamsmartctrl"
-version = "0.2.0"
+version = "0.2.1"
 authors = [
   { name="lordyavin", email="taa02kgvj@mozmail.com" },
 ]
