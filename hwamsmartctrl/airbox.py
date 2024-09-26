@@ -73,7 +73,7 @@ class Airbox:
         Always True because the Airbox always response with a OK.
         """
         async with self._session.get(self._base_url + self.ENDPOINT_START) as response:
-            data = await response.json(content_type="text/json")
+            data = await response.json()
             return data["response"] == "OK"
 
     async def set_burn_level(self, level: int) -> bool:

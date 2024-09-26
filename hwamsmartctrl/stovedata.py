@@ -12,7 +12,13 @@ class StoveData:
     updating: bool
     """ True if an update is running """
     phase: int
-    """ The burn phase """
+    """ The burn phase 
+    * 1: ignition
+    * 2: ?
+    * 3: burning
+    * 4: glowing -> App now shows the new_fire_wood_time
+    * 5: idle
+    """
     night_lowering: bool
     """ True if the night lowering (reduction) is active """
     new_fire_wood_time: datetime.time
