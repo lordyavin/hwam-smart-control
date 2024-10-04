@@ -1,3 +1,6 @@
+In favour of the already existing [pystove](https://github.com/mvn23/pystove) library 
+I'm going to stop working on my version of Python API to interface HWAM® SmartControl™.
+
 # HWAM® SmartControl™ API for Python
 Python API to interface HWAM® SmartControl™
 
